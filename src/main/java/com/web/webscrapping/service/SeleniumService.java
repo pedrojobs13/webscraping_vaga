@@ -1,84 +1,58 @@
 package com.web.webscrapping.service;
 
 import jakarta.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.manager.SeleniumManager;
+import org.openqa.selenium.mobile.NetworkConnection;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class SeleniumService {
 
-  private static final String URL = "https://www.linkedin.com/";
+  private static final String URL = "https://portal.gupy.io/";
 
   private final ChromeDriver driver;
 
   @PostConstruct
   void postContruct() {
-    scrape("estagio");
-  }
-
-  public void scrape(final String value) {
-
-    driver.get(URL);
-    final WebElement entrar = driver.findElement(By.xpath("//input[@id=\"session_key\"]"));
-    entrar.sendKeys("pedrolucasgomesdeoliveira13@gmail.com");
-    final WebElement senha = driver.findElement(By.xpath("//input[@id=\"session_password\"]"));
-
-    senha.submit();
-
-    waitForIt(3000);
-    //    final WebElement words =
-    //        driver.findElement(By.xpath("//input[@class=\"sc-84313ed3-61 eZbdmD\"]"));
-    //    words.sendKeys(value);
-    //    words.submit();
-    //
-    //    waitForIt(5000);
-    //
-    //    List<WebElement> descricoes =
-    //        driver.findElements(By.xpath("//ul[@class=\"sc-a01de6b-0 ypLsU\"]"));
-
-    //    List<WebElement> valoresProdutos =
-    //        driver.findElements(By.xpath("//div[@class=\"a-row a-size-base a-color-base\"]"));
-    //
-    //    descricoes.forEach(descricaoProdutos -> System.out.println(descricaoProdutos.getText()));
-    driver.quit();
-  }
-
-  private static void waitForIt(long tempo) {
-
-    try {
-      new Thread().sleep(tempo);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    gulp();
   }
 
   private void gulp() {
+    //    WebDriverWait waitEntrar = new WebDriverWait(driver, Duration.ofSeconds(40));
 
     driver.get(URL);
 
-    final WebElement entrar =
-        driver.findElement(By.xpath("//button[@class=\"sc-crXcEl fMTMDI sc-88cb810e-3 zFNIZ\"]"));
-    entrar.click();
-    waitForIt(3000);
-    final WebElement words =
-        driver.findElement(By.xpath("//input[@class=\"sc-84313ed3-61 eZbdmD\"]"));
-    words.sendKeys("estagiario");
-    words.submit();
+    try {
+      WebElement entrar =
+          driver.findElement(By.xpath("//button[@class=\"sc-crXcEl fMTMDI sc-88cb810e-3 zFNIZ\"]"));
+      entrar.click();
+    } catch (NoSuchElementException e) {
+      System.out.println("Elemento não encontrado: ");
+    }
 
-    waitForIt(5000);
+
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(40));
+    wait.until(
+        ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//ul[@class=\"sc-a01de6b-0 ypLsU\"]")));
 
     List<WebElement> descricoes =
         driver.findElements(By.xpath("//ul[@class=\"sc-a01de6b-0 ypLsU\"]"));
-
-    List<WebElement> valoresProdutos =
-        driver.findElements(By.xpath("//div[@class=\"a-row a-size-base a-color-base\"]"));
-
     descricoes.forEach(descricaoProdutos -> System.out.println(descricaoProdutos.getText()));
+    driver.quit();
   }
 }
+// driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
+// driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
